@@ -1,0 +1,43 @@
+{
+    "name": "rsavinkov/sms-sender",
+    "type": "project",
+    "description": "Small application to send SMS-messages by MessageBird API",
+    "keywords": [
+        "rsavinkov",
+        "sms-sender"
+    ],
+    "homepage": "https://github.com/rsavinkov/sms-sender",
+    "authors": [
+        {
+            "name": "Roman Savinkov",
+            "email": "r.savinkov@gmail.com",
+            "homepage": "https://github.com/rsavinkov",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "~7.1",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "messagebird/php-rest-api": "^1.10"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : ">=7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "rsavinkov\\SmsSender\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "rsavinkov\\SmsSender\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
