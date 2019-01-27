@@ -4,12 +4,18 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use rsavinkov\SmsSender\ApplicationRegistry;
 use rsavinkov\SmsSender\Controller;
+use rsavinkov\SmsSender\MessageService;
+use MessageBird\Client;
 
-$controller = new Controller(ApplicationRegistry::instance());
+$applicationRegistry = ApplicationRegistry::instance();
+$messageBird = new Client($applicationRegistry->getMessageBirdApiKey());
+$messageService = new MessageService($messageBird);
+
+$controller = new Controller($messageService, $applicationRegistry->getEnvironment());
 $response = $controller->sendMessageAction();
 
 http_response_code($response->getCode());
 header('Content-Type:application/json');
-echo json_encode($response->toArray());
+die(json_encode($response->toArray()));
 
 

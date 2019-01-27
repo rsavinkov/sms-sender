@@ -24,9 +24,14 @@ class Response
         return new self(405, false);
     }
 
+    public static function tooManyRequests()
+    {
+        return new self(429, false);
+    }
+
     public static function internalServerError()
     {
-        return new self(400, false);
+        return new self(500, false);
     }
 
     public function __construct(int $code, bool $success)
