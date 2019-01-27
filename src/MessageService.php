@@ -4,6 +4,8 @@ namespace rsavinkov\SmsSender;
 
 use MessageBird\Client;
 use MessageBird\Objects\Message;
+use rsavinkov\SmsSender\Error\TooManyRequestsError;
+use Throwable;
 
 class MessageService
 {
@@ -53,7 +55,7 @@ class MessageService
             throw $exception;
         }
         if ($tooManyRequests) {
-            throw new TooManyRequestsError('Exceed limit 1 request per second: ' . $tooManyRequests);
+            throw new TooManyRequestsError('Exceed limit 1 request per second');
         }
 
         return $messageResult;

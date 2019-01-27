@@ -4,16 +4,23 @@ namespace rsavinkov\SmsSender\Input;
 
 use rsavinkov\SmsSender\Error\BadRequestError;
 use rsavinkov\SmsSender\Error\InvalidParameterError;
-use rsavinkov\SmsSender\Error\MethodNotAllowedError;
 
 class RequestConverter
 {
-    private const PARAM_RECIPIENT = 'recipient';
-    private const PARAM_ORIGINATOR = 'originator';
-    private const PARAM_MESSAGE = 'message';
+    public const PARAM_RECIPIENT = 'recipient';
+    public const PARAM_ORIGINATOR = 'originator';
+    public const PARAM_MESSAGE = 'message';
 
     private const MAX_MESSAGE_LENGTH_GSM = 160;
     private const MAX_MESSAGE_LENGTH_UNICODE = 70;
+
+    public const ERROR_INVALID_JSON = 'Request doesn\'t contain valid JSON';
+    public const ERROR_PARAMETER_DOESNT_EXIST = 'Parameter doesn\'t exist!';
+    public const ERROR_INVALID_PHONE_NUMBER = 'It is not valid phone number';
+    public const ERROR_INVALID_ORIGINATOR_NAME = 'It is not valid originator name';
+    public const ERROR_EMPTY_MESSAGE = 'Message can not be empty';
+    public const ERROR_MESSAGE_MAX_LENGTH_160 = 'Max length is 160 characters (GSM)';
+    public const ERROR_MESSAGE_MAX_LENGTH_70 = 'Max length is 70 characters (unicode)';
 
     private $data;
 
@@ -26,7 +33,7 @@ class RequestConverter
     {
         $jsonData = json_decode($json, true);
         if (!is_array($jsonData)) {
-            throw new BadRequestError('Request doesn\'t contain valid JSON');
+            throw new BadRequestError(self::ERROR_INVALID_JSON);
         }
 
         return new self($jsonData);
@@ -46,7 +53,7 @@ class RequestConverter
         $recipientPhoneNumber = $this->getParameterAsString(self::PARAM_RECIPIENT);
 
         if (!$this->isValidPhoneNumber($recipientPhoneNumber)) {
-            throw new InvalidParameterError(self::PARAM_RECIPIENT, 'It is not valid phone number');
+            throw new InvalidParameterError(self::PARAM_RECIPIENT, self::ERROR_INVALID_PHONE_NUMBER);
         }
 
         return $recipientPhoneNumber;
@@ -57,7 +64,7 @@ class RequestConverter
         $originator = $this->getParameterAsString(self::PARAM_ORIGINATOR);
 
         if (!$this->isValidPhoneNumber($originator) && !$this->isValidOriginatorName($originator)) {
-            throw new InvalidParameterError(self::PARAM_ORIGINATOR, 'It is not valid originator name');
+            throw new InvalidParameterError(self::PARAM_ORIGINATOR, self::ERROR_INVALID_ORIGINATOR_NAME);
         }
 
         return $originator;
@@ -66,10 +73,14 @@ class RequestConverter
     private function getMessage(): string
     {
         $message = $this->getParameterAsString(self::PARAM_MESSAGE);
+        if (empty($message)) {
+            throw new InvalidParameterError(self::PARAM_MESSAGE, self::ERROR_EMPTY_MESSAGE);
+        }
         if (mb_strlen($message) > self::MAX_MESSAGE_LENGTH_GSM) {
-            throw new InvalidParameterError(self::PARAM_MESSAGE, 'Max length is 160 characters (GSM)');
-        } elseif (mb_strlen($message) > self::MAX_MESSAGE_LENGTH_UNICODE && !$this->isGSM0338($message)) {
-            throw new InvalidParameterError(self::PARAM_MESSAGE, 'Max length is 70 characters (unicode)');
+            throw new InvalidParameterError(self::PARAM_MESSAGE, self::ERROR_MESSAGE_MAX_LENGTH_160);
+        }
+        if (mb_strlen($message) > self::MAX_MESSAGE_LENGTH_UNICODE && !$this->isGSM0338($message)) {
+            throw new InvalidParameterError(self::PARAM_MESSAGE, self::ERROR_MESSAGE_MAX_LENGTH_70);
         }
 
         return $message;
@@ -120,7 +131,7 @@ class RequestConverter
     private function getParameterAsString(string $parameterName): string
     {
         if (!isset($this->data[$parameterName])) {
-            throw new InvalidParameterError($parameterName, 'Parameter doesn\'t exist!');
+            throw new InvalidParameterError($parameterName, self::ERROR_PARAMETER_DOESNT_EXIST);
         }
 
         return (string)$this->data[$parameterName];
