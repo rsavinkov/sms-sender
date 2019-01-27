@@ -32,7 +32,7 @@ class MessageService
                 $lastMicroTime = (float) fread($fp, 4096);
                 if (microtime(true) - $lastMicroTime > 1) {
 
-                    $messageResult = $this->messageBirdClient->messages->create($message);
+                    $messageResult = $this->createMessage($message);
 
                     rewind($fp);
                     ftruncate($fp, 0);
@@ -59,5 +59,10 @@ class MessageService
         }
 
         return $messageResult;
+    }
+
+    protected function createMessage(Message $message)
+    {
+        return $this->messageBirdClient->messages->create($message);
     }
 }
